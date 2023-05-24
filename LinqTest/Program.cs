@@ -66,12 +66,14 @@ namespace LinqTest
             int[] numsReverse = nums.Reverse().ToArray();
 
             /**************************************************************
-             * Skip : 인덱스 만큼 건너뛴 나머지 배열
-             * SkipWhile : 해당 조건을 만족하지 않는 요소가 나올때까지 건너뜀
-             * Take : 인덱스 만큼 포함한 배열
-             * TakeWhile : 해당 조건을 만족하지 않는 요소가 나올때까지 포함
+             * Skip : 지정된 개수만큼 건너뛴 나머지 배열
+             * SkipWhile : 해당 조건을 만족하는 동안 건너뜀
+             * Take : 지정된 개수만큼 포함한 배열
+             * TakeWhile : 해당 조건을 만족하는 동안 포함함
              * First : 배열의 첫번째 요소
+             * FirstOrDefault : 배열의 첫번째 요소를 반환하거나 배열에 항목이 없을 경우 기본값 반환
              * Last : 배열의 마지막 요소
+             * LastOrDefault : 배열의 마지막 요소를 반환하거나 배열에 항목이 없을 경우 기본값 반환
              * Single : 지정한 조건을 만족하는 요소를 반환. 조건을 만족하는 요소가 2개 이상이면 예외 발생
              *************************************************************/
             int[] numsSkip = nums.Skip(3).ToArray();
@@ -79,7 +81,9 @@ namespace LinqTest
             int[] numsTake = nums.Take(3).ToArray();
             int[] numsTakeWhile = nums.TakeWhile(num => num == 5).ToArray();
             int numsFirst = nums.First();
+            numsFirst = nums.FirstOrDefault();
             int numsLast = nums.Last();
+            numsLast = nums.LastOrDefault();
             try { nums.Single(num => num >= 5); } catch { Console.WriteLine("Not Single!"); }
 
             /**************************************************************
@@ -116,10 +120,16 @@ namespace LinqTest
             int[] numsOrderByDesc = nums.OrderByDescending(num => num).ToArray();
 
             /**************************************************************
-             * Join : 새로운 요소로 변환하여 반환
-             * GroupJoin : 지정한 조건을 만족하는 요소만 반환
+             * Join : 두 배열에서 지정한 키 필드로 조인된 결과를 반환 (ResultSelector는 두 배열의 요소)
+             * GroupJoin : 두 배열에서 지정한 키 필드로 조인된 결과를 반환 (ResultSelector는 Inner 배열의 그룹핑된 결과)
              *************************************************************/
             var lstStudentClassJoin = students.Join(classes,
+                                                    student => student.ClassId,
+                                                              cls => cls.ClassId,
+                                                    (person, cls) => new { Name = person.Name, Class = cls.ClassName, Score = person.Score });
+
+            // 복수개의 키 필드로 조인하는 경우 KeySelector를 해당 필드를 포함하는 익명 객체로 생성
+            lstStudentClassJoin = students.Join(classes,
                                                     student => new { ClassId = student.ClassId },
                                                     cls => new { ClassId = cls.ClassId },
                                                     (person, cls) => new { Name = person.Name, Class = cls.ClassName, Score = person.Score });
